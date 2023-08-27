@@ -1,37 +1,45 @@
 
 import React, { useState } from 'react';
 import { View, TextInput, Button } from 'react-native';
-import { SearchRequest } from '../types/Type';
-import { search } from '../apis/SearchApi';
+import { SearchRequest, SearchResponse } from '../types/Type';
+import SearchApi from '../apis/SearchApi';
 
-interface SearchBarProps {
-  onSearch: (results: any[]) => void;
-}
-
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
+const SearchBar: React.FC = () => {
   const [keyword, setKeyword] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResponse[]>([]);
 
   const handleSearch = async () => {
-    try {
-      const request: SearchRequest = {
-        keyword: keyword,
-      };
+    const searchRequest: SearchRequest = {
+      keyword,
+    };
 
-      const response = await search(request);
-      onSearch(response.searchResults);
+    try {
+      const response = await SearchApi.searchKeyword(searchRequest);
+      setSearchResults(response.searchResults);
     } catch (error) {
-      console.error('Error searching:', error);
+      // Handle error
     }
   };
 
   return (
     <View>
       <TextInput
-        placeholder="Enter keyword"
+        placeholder="Keyword"
         value={keyword}
         onChangeText={setKeyword}
       />
       <Button title="Search" onPress={handleSearch} />
+      {/* Display search results */}
+      {searchResults.map((result, index) => (
+        <View key={index}>
+          <Text>{result.userId}</Text>
+          <Text>{result.firstName}</Text>
+          <Text>{result.lastName}</Text>
+          <Text>{result.email}</Text>
+          <Text>{result.phone}</Text>
+          <Text>{result.address}</Text>
+        </View>
+      ))}
     </View>
   );
 };
