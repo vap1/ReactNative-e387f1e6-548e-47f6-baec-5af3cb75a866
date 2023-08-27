@@ -1,41 +1,37 @@
 
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList } from 'react-native';
-import { User } from '../types/Type';
-import { getDataDisplay } from '../apis/DataDisplayApi';
+import { View, Text } from 'react-native';
+import { User, DataDisplayResponse } from '../types/Type';
+import DataDisplayApi from '../apis/DataDisplayApi';
 
 const UserDetailsList: React.FC = () => {
-  const [userDetails, setUserDetails] = useState<User[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    fetchData();
+    fetchDataDisplay();
   }, []);
 
-  const fetchData = async () => {
+  const fetchDataDisplay = async () => {
     try {
-      const response = await getDataDisplay();
-      setUserDetails(response.users);
+      const response: DataDisplayResponse = await DataDisplayApi.fetchDataDisplay();
+      setUsers(response.users);
     } catch (error) {
-      console.error('Error fetching user details:', error);
+      // Handle error
     }
   };
 
-  const renderUserDetails = ({ item }: { item: User }) => (
-    <View>
-      <Text>{item.firstName} {item.lastName}</Text>
-      <Text>Email: {item.email}</Text>
-      <Text>Phone: {item.phone}</Text>
-      <Text>Address: {item.address}</Text>
-    </View>
-  );
-
   return (
     <View>
-      <FlatList
-        data={userDetails}
-        renderItem={renderUserDetails}
-        keyExtractor={(item) => item.userId}
-      />
+      {users.map((user, index) => (
+        <View key={index}>
+          <Text>{user.userId}</Text>
+          <Text>{user.firstName}</Text>
+          <Text>{user.lastName}</Text>
+          <Text>{user.email}</Text>
+          <Text>{user.phone}</Text>
+          <Text>{user.address}</Text>
+        </View>
+      ))}
     </View>
   );
 };
